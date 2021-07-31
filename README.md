@@ -4,6 +4,7 @@ A remake of my first game with unity, on raylib, making it also my first game ma
 Minimum Recommendations while starting the game:
   * FPS >= 30
   * Resolution >= 540p
+  * _Only supported aspect ratio is 16:9!!_
 
 Features:
   * Lever-controlled doors
