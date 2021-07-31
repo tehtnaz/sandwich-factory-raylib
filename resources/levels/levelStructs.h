@@ -1,4 +1,5 @@
 #include "../../include/raylib.h"
+#include "../../camera.h"
 #pragma once
 
 typedef struct {
@@ -36,10 +37,13 @@ PhysicsObject crate[2];
 
 int levelTexts;
 int levelCol;
-int levelID;
+//int levelID;
 int ladderNum;
 int objectCol;
 bool isLever;
 bool isDoor;
+bool disableCam;
 
 Vector2 startingPos;
+
+s_Camera camera;

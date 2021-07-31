@@ -5,7 +5,8 @@ void assign2(){
     levelCol = 5;
     objectCol = 0;
     ladderNum = 0;
-    levelID = 1;
+    disableCam = true;
+    //levelID = 1;
 
     Col[0].x = 0;
     Col[0].y = 0;

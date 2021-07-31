@@ -1,10 +1,10 @@
 #pragma once
 #include "levelStructs.h"
 
-void assign3(){
+void assign4(){
     levelCol = 4;
-    objectCol = 2;
-    ladderNum = 0;
+    objectCol = 0;
+    ladderNum = 1;
     disableCam = true;
     //levelID = 1;
 
@@ -36,21 +36,10 @@ void assign3(){
     Col[3].trigger = false;
     Col[3].enabled = true;
 
-    //Crates
-
-    crate[0].position.x = 220;
-    crate[0].position.y = 104;
-    crate[0].sizeX = 15;
-    crate[0].sizeY = 13;
-    crate[0].trigger = false;
-    crate[0].enabled = true;
-
-    crate[1].position.x = 203;
-    crate[1].position.y = 104;
-    crate[1].sizeX = 15;
-    crate[1].sizeY = 13;
-    crate[1].trigger = false;
-    crate[1].enabled = true;
+    ladderCol[0].x = 82;
+    ladderCol[0].y = 83;
+    ladderCol[0].sizeX = 7;
+    ladderCol[0].sizeY = 36;
 
     startingPos.x = 4;
     startingPos.y = 81;

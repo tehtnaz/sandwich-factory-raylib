@@ -9,10 +9,11 @@ void loadNew(int selectedLevel){
         case 2:
             assign3();
             break;
-        /*
+        
         case 3:
             assign4();
             break;
+        /*
         case 4:
             assign5();
             break;

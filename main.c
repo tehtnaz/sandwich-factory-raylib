@@ -3,31 +3,45 @@
 #include "checkColliders.h"
 #include "loadNew.h"
 #include "velocity.h"
+#include "vector2pp.h"
 
-/* TODO LIST!! (Top to bottom)
-* Allow for crates to give velocity to one another
-* Side scrolling
+/* TODO LIST!! (Top to bottom)s
 * Ladders (setup for collision checking done, physics manipulation still need to be done)
+* Allow for crates to give velocity to one another
 * Disappearing walls / portals
 * Multiple lever instance possibility
 * Multiple portal instance ppossibility
+* Side scrolling - Only if you want to do the original scrolling
+*/
+
+/* BUGS
+* At low frame rates, you cannot grab crates from the side but can from the top
 */
 
 
-
 int main(void){
+    //ask for resolution and fps
+    int screenWidth;
+    int screenHeight;
+    int screenFPS;
+    char str[40];
+
+    printf("Enter Resolution (recommended: 135, 270, 540, 1080): ");
+    scanf("%d", &screenHeight);
+    screenWidth = (float)screenHeight / 9.00f * 16.00f;
+
+    printf("Enter desired FPS: ");
+    scanf("%d", &screenFPS);
+
     //initialize variables
-    const int screenWidth = 1920;
-    const int screenHeight = 1080;
-    const int screenFPS = 60;
     Vector2 bgPosition;
         bgPosition.x = 0;
         bgPosition.y = 0;
-    char str[40];
     void prepareLevel();
 
     //image related variables
     const int resolutionMultiplier = screenWidth / 240;
+    const int backgroundResMultiplier = screenWidth / 320;
     Texture2D level;
     Texture2D player;
     Texture2D player_flipped;
@@ -35,7 +49,7 @@ int main(void){
 
     //load colliders and resize starting position and declare which level we start with
     int selectedLevel = 0;
-    const int maxLevel = 2;
+    const int maxLevel = 3;
     loadNew(selectedLevel);
 
     //game related variables
@@ -51,7 +65,9 @@ int main(void){
     bool showVelocity = false;
     int ShowCollider = 0;
     Vector2 playerPos;
-
+    Vector2 test;
+    test.x = 100;
+    test.y = 100;
 
 
     //start raylib
@@ -64,14 +80,13 @@ int main(void){
 
     //load images
     Animation background;
-    background = assignProperties(0, 1, true, 10);
-    background.fps = 10;
+    background = assignProperties(0, 10, true, 10, true);
 
     background.frameBuffer = 0;
     background = getFromFolder(background, "resources/background/");
 
     Animation door;
-    door = assignProperties(0, 10, false, 12);
+    door = assignProperties(0, 60, false, 12, false);
     door = getFromFolder(door, "resources/objects/door/");
     bool door_isClosed = true;
 
@@ -83,7 +98,7 @@ int main(void){
     player_flipped = LoadTexture("resources/objects/player_flip.png");
 
     Animation ladder;
-    ladder = assignProperties(0, 0, false, 7);
+    ladder = assignProperties(0, 0, false, 7, true);
     ladder = getFromFolder(ladder, "resources/objects/ladder/");
 
     crateImage = LoadTexture("resources/objects/crate.png");
@@ -121,8 +136,9 @@ int main(void){
 
         //Cycle anims
         background = cycleAnimation(background, screenFPS);
+
         if(door.isAnimating && door_isClosed == true){
-            door = cycleAnimation(door, screenFPS/ 10);
+            door = cycleAnimation(door, screenFPS);
             printf("door is animating (opening)\n");
             if(door.currentFrame == door.frameCount - 1){
                 printf("opeinging animationg ended\n");
@@ -131,7 +147,7 @@ int main(void){
                 Col[levelCol + 1].enabled = false;
             }
         }else if(door.isAnimating && door_isClosed == false){
-            door = cycleAnimationBackwards(door, screenFPS / 10);
+            door = cycleAnimationBackwards(door, screenFPS);
             printf("door is animating (closing)\n");
             if(door.currentFrame == 0){
                 printf("closing animation ended\n");
@@ -192,6 +208,7 @@ int main(void){
                 PlaySound(door_close);
             }
         }
+
         //Reset
         if(playerPos.y > screenHeight || IsKeyPressed(KEY_R)){
             playerPos = startingPos;
@@ -225,7 +242,7 @@ int main(void){
 
         //Velocity management
         if((velocity <= 0 && collision.down == false) || velocity > 0){
-            velocity += gravity;
+            velocity += gravity / (screenFPS / 60.00f);
             if(!(velocity > 0 && collision.up == true)){
                 playerPos.y -= velocity * (1/(float)screenFPS);
             }else{
@@ -247,6 +264,13 @@ int main(void){
         inputVelocity.y = velocity;
         crate[0] = updateObject(crate[0], playerPos, playerSize, inputVelocity, frictionCoefficient, screenFPS, gravity, 0, player_flipX, resolutionMultiplier);
         crate[1] = updateObject(crate[1], playerPos, playerSize, inputVelocity, frictionCoefficient, screenFPS, gravity, 1, player_flipX, resolutionMultiplier);
+
+        //Change camera position
+        Vector2 camInput = addNewVec2(negVec2(playerPos), screenWidth / 2.00f, screenHeight / 2.00f);
+        if(!disableCam && camera.smoothingEnabled){
+            camera = lerpCamera(camera, camInput.x, camInput.y);
+        }
+        
 
         //printf("fard - %f", inputVelocity.x);
 
@@ -274,6 +298,10 @@ int main(void){
                 ShowCollider = 1;
             }
         }
+        
+        if(IsKeyPressed(KEY_F10)){
+            test = lerpVec2(test, 50, 50, 0.25f);
+        }
         if(IsKeyPressed(KEY_TAB) && ShowCollider > 0){
             if(ShowCollider > levelCol){
                 ShowCollider = 1;
@@ -285,50 +313,65 @@ int main(void){
         BeginDrawing();
         ClearBackground(RAYWHITE);
             //Background
-            DrawTextureEx(background.frames[background.currentFrame], bgPosition, 0, 6, WHITE);
+            DrawTextureEx(background.frames[background.currentFrame], bgPosition, 0, backgroundResMultiplier, WHITE);
 
-            //Ladders
             Vector2 tempVector;
-            for(int i = 0; i < ladderNum; i++){
-                tempVector.x = ladderCol[i].x;
-                tempVector.y = ladderCol[i].y;
-                for(int i = 0; i < ladderCol[i].sizeY / 3; i++){
-                    DrawTextureEx(ladder.frames[GetRandomValue(0, ladder.frameCount - 1)], tempVector, 0, resolutionMultiplier, WHITE);
-                    tempVector.y += 3 * resolutionMultiplier;
-                }
-            }
 
             //Level + Text
-            DrawTextureEx(level, bgPosition, 0, resolutionMultiplier, WHITE);
+            DrawTextureEx(level, addVec2(bgPosition, camera.position), 0, resolutionMultiplier, WHITE);
             for(int i = 0; i < levelTexts; i++){
-                DrawText(levelText[i].text, levelText[i].x, levelText[i].y, levelText[i].size, levelText[i].colour);
+                DrawText(levelText[i].text, levelText[i].x + camera.position.x, levelText[i].y + camera.position.y, levelText[i].size, levelText[i].colour);
             }
 
             //Objects in level
             if(isLever){
                 tempVector.x = Col[levelCol].x;
                 tempVector.y = Col[levelCol].y;
-                DrawTextureEx(lever.frames[lever.currentFrame], tempVector, 0, resolutionMultiplier, WHITE);
+                DrawTextureEx(lever.frames[lever.currentFrame], addVec2(tempVector, camera.position), 0, resolutionMultiplier, WHITE);
             }
             if(isDoor){
                 tempVector.x = Col[levelCol + 1].x;
                 tempVector.y = Col[levelCol + 1].y;
-                DrawTextureEx(door.frames[door.currentFrame], tempVector, 0, resolutionMultiplier, WHITE);
+                DrawTextureEx(door.frames[door.currentFrame], addVec2(tempVector, camera.position), 0, resolutionMultiplier, WHITE);
             }
             if(objectCol > 0){
                 for(int i = 0; i < objectCol; i++){
-                    DrawTextureEx(crateImage, crate[i].position, 0, resolutionMultiplier, WHITE);
+                    DrawTextureEx(crateImage, addVec2(crate[i].position, camera.position), 0, resolutionMultiplier, WHITE);
                 }
+            }
+
+            //Ladders
+            
+            for(int i = 0; i < ladderNum; i++){
+                printf("%d;", ladderCol[i].x);
+                printf("%d;", ladderCol[i].y);
+                tempVector.x = ladderCol[i].x;
+                tempVector.y = ladderCol[i].y;
+                for(int i = 0; i < (float)ladderCol[i].sizeY / 3.00f; i++){
+                    //printf(";fard");
+                    //printf("%d", ladderCol[i].sizeY / 3);
+                    //printf(";%d", i);
+                    //printf("!%d!", i < ladderCol[i].sizeY / 3);
+                    printf("%d;", ladder.frames[0].height);
+                    printf("%d;", ladder.frames[0].width);
+                    printf("!");
+                    DrawTextureEx(ladder.frames[0], tempVector, 0, resolutionMultiplier, WHITE);
+                    tempVector.y += 3 * resolutionMultiplier;
+                    printf("%d", i);
+                    //GetRandomValue(0, ladder.frameCount - 1)
+                }
+                DrawRectangle(ladderCol[i].x, ladderCol[i].y, ladderCol[i].sizeX, 1, WHITE);
+                printf("\n");
             }
 
             //Player
             if(player_flipX){
-                DrawTextureEx(player_flipped, playerPos, 0, resolutionMultiplier, WHITE);
+                DrawTextureEx(player_flipped, addVec2(playerPos, camera.position), 0, resolutionMultiplier, WHITE);
             }else{
-                DrawTextureEx(player, playerPos, 0, resolutionMultiplier, WHITE);
+                DrawTextureEx(player, addVec2(playerPos, camera.position), 0, resolutionMultiplier, WHITE);
             }
 
-            //Debug related
+            //Debug related - DOES NOT FOLLOW CAM!!
             if(ColliderDebugMode){
                 DrawRectangle(playerPos.x, playerPos.y, playerSize.x, playerSize.y, PINK);
                 int colsToResize = levelCol;
@@ -415,6 +458,16 @@ void prepareLevel(int resolutionMultiplier, Vector2* playerPos, Vector2 starting
         Col[i].sizeY *= resolutionMultiplier;
         printf("%d\n",Col[i].x + Col[i].sizeX);
     }
+
+    //resize ladders
+
+    for(int i = 0; i < ladderNum; i++){
+        ladderCol[i].x *= resolutionMultiplier;
+        ladderCol[i].y *= resolutionMultiplier;
+        ladderCol[i].sizeX *= resolutionMultiplier;
+        ladderCol[i].sizeY *= resolutionMultiplier;
+    }
+
     //resize levelText according to resolution
     
     for(int i = 0; i < levelTexts; i++){
@@ -434,6 +487,17 @@ void prepareLevel(int resolutionMultiplier, Vector2* playerPos, Vector2 starting
         crate[i].sizeY *= resolutionMultiplier;
         crate[i].velocity.x = 0;
         crate[i].velocity.y = 0;
+    }
+
+    camera.position.x = 0;
+    camera.position.y = 0;
+
+    if(disableCam){
+        camera.maxCamera.x = 0;
+        camera.maxCamera.y = 0;
+        camera.minCamera.x = 0;
+        camera.minCamera.y = 0;
+        camera.smoothingEnabled = false;
     }
 }
     

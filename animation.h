@@ -7,7 +7,8 @@ typedef struct{
     int fps; //Instead of the rendered fps, use whatever you like!
     bool isAnimating;
     int currentFrame;
-    int frameBuffer; //Used in main.c to tell how many frames have gone between each switch
+    float frameBuffer; //Used in main.c to tell how many frames have gone between each switch
+    bool allowSnap;
 }Animation;
 
 typedef struct{
@@ -17,13 +18,14 @@ typedef struct{
     int currentFrame;
 }SwitchAnimation;
 
-Animation assignProperties(int currentFrame, int fps, bool isAnimating, int frameCount){
+Animation assignProperties(int currentFrame, int fps, bool isAnimating, int frameCount, bool allowsnap){
     Animation temp;
     temp.frameCount = frameCount;
     temp.fps = fps;
     temp.isAnimating = isAnimating;
     temp.currentFrame = currentFrame;
     temp.frameBuffer = 0;
+    temp.allowSnap = allowsnap;
     return temp;
 }
 
@@ -55,27 +57,51 @@ SwitchAnimation switchGetFromFolder(SwitchAnimation input, char path[40]){
     return temp;
 }
 
-Animation cycleAnimation(Animation input, int screenfps){
+Animation cycleAnimation(Animation input, float screenfps){
     Animation temp = input;
-    temp.frameBuffer++;
-    if(temp.frameBuffer > screenfps / temp.fps - 1){
-        temp.frameBuffer = 0;
-        temp.currentFrame++;
+
+    temp.frameBuffer += temp.fps / screenfps;
+    
+    if((float)screenfps / temp.fps - 1 < 0){
+        while(temp.frameBuffer >= 1){
+            temp.frameBuffer--;
+            if(temp.allowSnap || (temp.currentFrame != temp.frameCount - 1 && !temp.allowSnap)){
+                temp.currentFrame++;
+            }
+        }
+    }else{
+        if(temp.frameBuffer >= 1){
+            temp.frameBuffer--;
+            temp.currentFrame++;
+        }
     }
-    if(temp.currentFrame > temp.frameCount - 1){
+
+    if(temp.currentFrame > temp.frameCount - 1 && temp.allowSnap){
         temp.currentFrame = 0;
     }
     return temp;
 }
 
-Animation cycleAnimationBackwards(Animation input, int screenfps){
+Animation cycleAnimationBackwards(Animation input, float screenfps){
     Animation temp = input;
-    temp.frameBuffer++;
-    if(temp.frameBuffer > screenfps / temp.fps - 1){
-        temp.frameBuffer = 0;
-        temp.currentFrame--;
+
+    temp.frameBuffer += temp.fps / screenfps;
+
+    if((float)screenfps / temp.fps - 1 < 0){
+        while(temp.frameBuffer >= 1){
+            temp.frameBuffer--; 
+            if(temp.allowSnap || (temp.currentFrame != 0 && !temp.allowSnap)){
+                temp.currentFrame--;
+            }
+        }
+    }else{
+        if(temp.frameBuffer >= 1){
+            temp.frameBuffer--;
+            temp.currentFrame--;
+        }
     }
-    if(temp.currentFrame < 0){
+
+    if(temp.currentFrame < 0 && temp.allowSnap){
         temp.currentFrame = temp.frameCount - 1;
     }
     return temp;
