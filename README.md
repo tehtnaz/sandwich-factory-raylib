@@ -2,7 +2,7 @@
 A remake of my first game with unity, on raylib, making it also my first game made with raylib.
 
 Features:
-  Lever-controlled doors\n
+  Lever-controlled doors
   Crates with custom physics
     Can be grabed
   Camera following (not seen in game)
