@@ -1,7 +1,7 @@
 # sandwich-factory-raylib
 A remake of my first game with unity, on raylib, making it also my first game made with raylib.
 
-Minimum Recommendations:
+Minimum Recommendations while starting the game:
   * FPS >= 30
   * Resolution >= 540p
 
