@@ -11,6 +11,11 @@ Features:
     * Recommended Resolution >= 540p
     * _Only supported aspect ratio is 16:9!!_
 
+New to Beta 2:
+  * It is now possible to load custom files
+    * Ladders are supported in the files but will not be rendered in the game.
+  * I don't plan on making a documentation yet so please refer to the dataHandling.h file where I kept my info
+
 Future Features (not yet ported to raylib version):
   * Ladders
   * Portals
