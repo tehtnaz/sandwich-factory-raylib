@@ -5,7 +5,17 @@ void assign(){
     levelCol = 11;
     objectCol = 0;
     ladderNum = 0;
-    levelID = 0;
+    disableCam = true;
+
+    /*debug
+    camera.maxCamera.x = 100000;
+    camera.maxCamera.y = 100000;
+    camera.minCamera.x = -100000;
+    camera.minCamera.y = -100000;
+    camera.smoothingEnabled = true;
+    camera.smoothing = 0.25f;*/
+
+    //levelID = 0;
 
     Col[0].x = 0;
     Col[0].y = 0;
