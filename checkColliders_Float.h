@@ -1,7 +1,8 @@
-#include "resources/levels/1.h"
-#include "resources/levels/2.h"
-#include "resources/levels/3.h"
+//#include "resources/levels/1.h"
+//#include "resources/levels/2.h"
+//#include "resources/levels/3.h"
 #include "abs.h"
+#include "levelVariables.h"
 #pragma once
 /*
 *  0 = x Position

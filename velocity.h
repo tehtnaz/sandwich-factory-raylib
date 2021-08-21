@@ -1,5 +1,5 @@
 #pragma once
-#include "resources/levels/levelStructs.h"
+#include "levelStructs.h"
 #include "checkColliders.h"
 #include "checkColliders_Float.h"
 
@@ -38,7 +38,7 @@ PhysicsObject updateObject(PhysicsObject input, Vector2 playerPosition, Vector2 
     float fpsMultiplier = (1.0f/(float)screenFPS);
 
     //Friction
-    temp.velocity.x = temp.velocity.x * (friction / screenFPS) * 60;
+    temp.velocity.x -= (temp.velocity.x - (temp.velocity.x * friction)) * 60 / screenFPS;
 
     //Check against level colliders
     float self[4];
@@ -86,7 +86,7 @@ PhysicsObject updateObject(PhysicsObject input, Vector2 playerPosition, Vector2 
 
     //Change velocity based on collision
     if(!objCollision.down){
-        temp.velocity.y -= gravity;
+        temp.velocity.y -= gravity / (screenFPS / 60.00f);
     }
 
     if((objCollision.down && temp.velocity.y > 0) || (objCollision.up && temp.velocity.y < 0)){
