@@ -4,8 +4,12 @@
 #include "loadNew.h"
 #include "velocity.h"
 #include "vector2pp.h"
+#include "dataHandling.h"
+#include "exponent.h"
+#include "levelVariables.h"
 
 /* TODO LIST!! (Top to bottom)s
+* Custom level mode
 * Ladders (setup for collision checking done, physics manipulation still need to be done)
 * Allow for crates to give velocity to one another
 * Disappearing walls / portals
@@ -25,6 +29,46 @@ int main(void){
     int screenHeight;
     int screenFPS;
     char str[40];
+
+    Vector2 test;
+    /*float test_output[16];
+    for(int i = 0; i < 16; i++){
+        test_output[i] = false;
+    }
+    
+    for(int i = 0; i < 16; i++){
+        printf("%d;", test_output[i]);
+    }*/
+    //printf("%d\n", parseInt("130;8492749274", 9));
+    //test = readVector2("(1029,10983)");
+    //printf("%f,%f\n", test.x, test.y);
+    //test = readVector2Float("(92.133,3108.1)");
+    //printf("%f,%f\n", test.x, test.y);
+    char levelImagePath[64];
+    disableCam = false;
+    //printf("%d\n", readFileSF("level01.sandwich", true, &isDoor, &isLever, levelImagePath, &disableCam, &startingPos, &camera, Col, ladderCol, levelText, crate, &levelTexts, &levelCol, &ladderNum, &objectCol));
+    /*loadNew(0, true, levelImagePath);
+    //printf("hello6");
+    printf("(%f,%f),(%f,%f),(%f,%f),%d,%f\n", camera.position.x, camera.position.y, camera.maxCamera.x, camera.maxCamera.y, camera.minCamera.x, camera.minCamera.y, camera.smoothingEnabled, camera.smoothing);
+    //parseInt("99999999;", 10);
+    printf("%s---\n", levelImagePath);
+    printf("%d, %d, %d, %d, %d, %d\n", Col[0].x, Col[0].y, Col[0].sizeX, Col[0].sizeY, Col[0].trigger, Col[0].enabled);
+    printf("%d, %d, %d, %d, %d, %d\n", Col[1].x, Col[1].y, Col[1].sizeX, Col[1].sizeY, Col[1].trigger, Col[1].enabled);
+
+    printf("%d, %d, %d, %d, %d, %d\n", ladderCol[0].x, ladderCol[0].y, ladderCol[0].sizeX, ladderCol[0].sizeY, ladderCol[0].trigger, ladderCol[0].enabled);
+    printf("%d, %d, %d, %d, %d, %d\n", ladderCol[1].x, ladderCol[1].y, ladderCol[1].sizeX, ladderCol[1].sizeY, ladderCol[1].trigger, ladderCol[1].enabled);
+
+    printf("%f, %f, %d, %d, %d, %d\n", crate[0].position.x, crate[0].position.y, crate[0].sizeX, crate[0].sizeY, crate[0].trigger, crate[0].enabled);
+    printf("%f, %f, %d, %d, %d, %d\n", crate[1].position.x, crate[1].position.y, crate[1].sizeX, crate[1].sizeY, crate[1].trigger, crate[1].enabled);
+
+    //Color parsed = parseColor("(255,12,55,93)", 12);
+    //printf("%d, %d, %d, %d\n", parsed.r, parsed.g, parsed.b, parsed.a);
+
+    printf("\n%d, %d, %d, %s, (%d, %d, %d, %d)\n", levelText[0].x, levelText[0].y, levelText[0].size, levelText[0].text, levelText[0].colour.r, levelText[0].colour.g, levelText[0].colour.b, levelText[0].colour.a);
+    printf("%d, %d, %d, %s, (%d, %d, %d, %d)\n", levelText[1].x, levelText[1].y, levelText[1].size, levelText[1].text, levelText[1].colour.r, levelText[1].colour.g, levelText[1].colour.b, levelText[1].colour.a);
+    //printf();
+
+    printf("dc: %d, spx: %f, spy: %f\n", disableCam, startingPos.x, startingPos.y);*/
 
     printf("Enter Resolution (recommended: 135, 270, 540, 1080): ");
     scanf("%d", &screenHeight);
@@ -50,7 +94,19 @@ int main(void){
     //load colliders and resize starting position and declare which level we start with
     int selectedLevel = 0;
     const int maxLevel = 3;
-    loadNew(selectedLevel);
+    printf("Type 0 for the regular levels and 1 for a custom level: ");
+    int customLevel = 2;
+    while(customLevel != 0 && customLevel != 1){
+        scanf("%d", &customLevel);
+        if(customLevel != 0 && customLevel != 1){
+            printf("Enter 0 or 1\n");
+        }
+    }
+    if(customLevel == 0){
+        loadNew(selectedLevel, false, levelImagePath);
+    }else{
+        loadNew(selectedLevel, true, levelImagePath);
+    }
 
     //game related variables
     const float characterSpeed = 96 / 2.25f * resolutionMultiplier;
@@ -58,14 +114,13 @@ int main(void){
     const float jumpHeight = 490.5f * resolutionMultiplier / 8;
     const float frictionCoefficient = 0.98f;
     float velocity = 0.00f;
-    bool isTouchingCrate;
+    //bool isTouchingCrate;
     bool ColliderDebugMode = false;
     bool player_flipX = false;
     bool CrateDebugMode = false;
     bool showVelocity = false;
     int ShowCollider = 0;
     Vector2 playerPos;
-    Vector2 test;
     test.x = 100;
     test.y = 100;
 
@@ -110,8 +165,8 @@ int main(void){
     Sound door_close;
     door_close = LoadSound("resources/sounds/door/close.wav");
 
-    Sound portal;
-    portal = LoadSound("resources/sounds/portal.wav");
+    //Sound portal;
+    //portal = LoadSound("resources/sounds/portal.wav");
 
     Sound soundtrack;
     soundtrack = LoadSound("resources/sounds/soundtrack/menu.wav");
@@ -171,6 +226,9 @@ int main(void){
                 playerPos.y = Col[collision.floor].y - playerSize.y + 0.1f;
             }
         }
+        if(collision.inLadder == true){
+            
+        }
 
         //Movement
         if((IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP)|| IsKeyDown(KEY_W)) && collision.up == false && collision.down == true){
@@ -221,7 +279,10 @@ int main(void){
                 CloseWindow();
                 return 0;
             }else{
-                loadNew(selectedLevel);
+                printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
+                if(loadNew(selectedLevel, false, levelImagePath) == 0){
+                    printf("Succesfully loaded\n");
+                }
                 prepareLevel(resolutionMultiplier, &playerPos, startingPos, selectedLevel, &level, str);
             }
         }
@@ -235,7 +296,10 @@ int main(void){
                 CloseWindow();
                 return 0;
             }else{
-                loadNew(selectedLevel);
+                printf("Attemping to load level %d because posX: %f > width: %d\n", selectedLevel, playerPos.x, screenWidth);
+                if(loadNew(selectedLevel, false, levelImagePath) == 0){
+                    printf("Succesfully loaded\n");
+                }
                 prepareLevel(resolutionMultiplier, &playerPos, startingPos, selectedLevel, &level, str);
             }
         }
@@ -445,6 +509,7 @@ int main(void){
 void prepareLevel(int resolutionMultiplier, Vector2* playerPos, Vector2 startingPos, int selectedLevel, Texture2D* level, char str[40]){
     //load level image
     sprintf(str, "resources/levels/%d.png", selectedLevel + 1);
+    printf("Attemping to load image: %s\n", str);
     *level = LoadTexture(str);
 
     //resize Colliders according to resolution

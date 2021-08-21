@@ -1,5 +1,5 @@
 #pragma once
-#include "resources/levels/levelStructs.h"
+#include "levelStructs.h"
 #include "checkColliders.h"
 #include "checkColliders_Float.h"
 
