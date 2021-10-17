@@ -469,6 +469,7 @@ BoxCollider2D parseBoxCollider(char input[128], int inputSize, bool isLadder){
 
 //Note: Does not read velocity or isTouchingPlayer
 PhysicsObject parsePhysicsObject(char input[128], int inputSize){
+    printf("reading PhysObj - input: %s\n", input);
     int select = 0;
     char sendToParse[20];
     int temp;
@@ -559,14 +560,14 @@ PhysicsObject parsePhysicsObject(char input[128], int inputSize){
 
     returnedObj.enabled = parseBool(input[select]);
     select++;
-    printf("hello");
     if(input[select] == ')'){
         select++;
     }else{
         perror("parsePhysicsObject - Input is not bool");
         printf("given char - %c\n", input[select]);
     }
-    printf("hello2");
+    printf("parsePhysObj - input: %s\n", input);
+    printf("output: %f, %f, %d, %d, %d, %d\n", returnedObj.position.x, returnedObj.position.y, returnedObj.sizeX, returnedObj.sizeY, returnedObj.trigger, returnedObj.enabled);
     return returnedObj;
 }
 
@@ -975,7 +976,7 @@ int readFileSF(char path[100], bool readLevelImagePath, bool* isLever, bool* isD
                 }
                 sendToParse[temp] = ch;
                 levelCol[levelColID] = parseBoxCollider(sendToParse, temp, false);
-                printf("uhh this worked");
+                //printf("uhh this worked");
                 levelColID++;
             }
         }else if(ch == '*'){
@@ -1003,6 +1004,7 @@ int readFileSF(char path[100], bool readLevelImagePath, bool* isLever, bool* isD
             }
         }else if(ch == '^'){
             //physics object  = ^{} or ^()
+            printf("attempting to parsePhysObj\n");
             charSelect++;
             ch = input[charSelect];
             if(ch == '{'){
@@ -1032,7 +1034,6 @@ int readFileSF(char path[100], bool readLevelImagePath, bool* isLever, bool* isD
                 }
                 sendToParse[temp] = ch;
                 physobjects[physObjID] = parsePhysicsObject(sendToParse, temp);
-                printf("hello3");
                 physObjID++;
             }
         }else if(ch == '&'){
@@ -1103,8 +1104,12 @@ int readFileSF(char path[100], bool readLevelImagePath, bool* isLever, bool* isD
     *ladderNum = ladderID;
     *physObjNum = physObjID;
 
-    //printf("hello4");
     //printf("input - %s", input);
+    printf("crate1: %f, %f, %d, %d, %d, %d\n", physobjects[0].position.x, physobjects[0].position.y, physobjects[0].sizeX, physobjects[0].sizeY, physobjects[0].trigger, physobjects[0].enabled);
+    printf("crate2: %f, %f, %d, %d, %d, %d\n", physobjects[1].position.x, physobjects[1].position.y, physobjects[1].sizeX, physobjects[1].sizeY, physobjects[1].trigger, physobjects[1].enabled);
+    printf("crate1(game): %f, %f, %d, %d, %d, %d\n", crate[0].position.x, crate[0].position.y, crate[0].sizeX, crate[0].sizeY, crate[0].trigger, crate[0].enabled);
+    printf("crate2(game): %f, %f, %d, %d, %d, %d\n", crate[1].position.x, crate[1].position.y, crate[1].sizeX, crate[1].sizeY, crate[1].trigger, crate[1].enabled);
+    
     fclose(fp);
     //printf("hello5\n");
     return 0;

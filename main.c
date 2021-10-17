@@ -9,6 +9,8 @@
 #include "levelVariables.h"
 
 /* TODO LIST!! (Top to bottom)s
+
+* VECTOR 2 READING FROM PHYSICS OBJECTS IS BROKEN!!!
 * Custom level mode
 * Ladders (setup for collision checking done, physics manipulation still need to be done)
 * Allow for crates to give velocity to one another
@@ -47,8 +49,8 @@ int main(void){
     char levelImagePath[64];
     disableCam = false;
     //printf("%d\n", readFileSF("level01.sandwich", true, &isDoor, &isLever, levelImagePath, &disableCam, &startingPos, &camera, Col, ladderCol, levelText, crate, &levelTexts, &levelCol, &ladderNum, &objectCol));
-    /*loadNew(0, true, levelImagePath);
-    //printf("hello6");
+    loadNew(2, false, levelImagePath);
+    /*//printf("hello6");
     printf("(%f,%f),(%f,%f),(%f,%f),%d,%f\n", camera.position.x, camera.position.y, camera.maxCamera.x, camera.maxCamera.y, camera.minCamera.x, camera.minCamera.y, camera.smoothingEnabled, camera.smoothing);
     //parseInt("99999999;", 10);
     printf("%s---\n", levelImagePath);
@@ -57,10 +59,10 @@ int main(void){
 
     printf("%d, %d, %d, %d, %d, %d\n", ladderCol[0].x, ladderCol[0].y, ladderCol[0].sizeX, ladderCol[0].sizeY, ladderCol[0].trigger, ladderCol[0].enabled);
     printf("%d, %d, %d, %d, %d, %d\n", ladderCol[1].x, ladderCol[1].y, ladderCol[1].sizeX, ladderCol[1].sizeY, ladderCol[1].trigger, ladderCol[1].enabled);
-
+*/
     printf("%f, %f, %d, %d, %d, %d\n", crate[0].position.x, crate[0].position.y, crate[0].sizeX, crate[0].sizeY, crate[0].trigger, crate[0].enabled);
     printf("%f, %f, %d, %d, %d, %d\n", crate[1].position.x, crate[1].position.y, crate[1].sizeX, crate[1].sizeY, crate[1].trigger, crate[1].enabled);
-
+/*
     //Color parsed = parseColor("(255,12,55,93)", 12);
     //printf("%d, %d, %d, %d\n", parsed.r, parsed.g, parsed.b, parsed.a);
 
@@ -87,9 +89,6 @@ int main(void){
     const int resolutionMultiplier = screenWidth / 240;
     const int backgroundResMultiplier = screenWidth / 320;
     Texture2D level;
-    Texture2D player;
-    Texture2D player_flipped;
-    Texture2D crateImage;
 
     //load colliders and resize starting position and declare which level we start with
     int selectedLevel = 0;
@@ -112,7 +111,7 @@ int main(void){
     const float characterSpeed = 96 / 2.25f * resolutionMultiplier;
     const float gravity = -9.81f * 1.5f * resolutionMultiplier / 8;
     const float jumpHeight = 490.5f * resolutionMultiplier / 8;
-    const float frictionCoefficient = 0.98f;
+    const float frictionCoefficient = 1.05f;
     float velocity = 0.00f;
     //bool isTouchingCrate;
     bool ColliderDebugMode = false;
@@ -149,14 +148,14 @@ int main(void){
     lever = switchAssignProperties(0, 10, false);
     lever = switchGetFromFolder(lever, "resources/objects/lever/");
 
-    player = LoadTexture("resources/objects/player.png");
-    player_flipped = LoadTexture("resources/objects/player_flip.png");
+    Texture2D player = LoadTexture("resources/objects/player.png");
+    Texture2D player_flipped = LoadTexture("resources/objects/player_flip.png");
 
     Animation ladder;
     ladder = assignProperties(0, 0, false, 7, true);
     ladder = getFromFolder(ladder, "resources/objects/ladder/");
 
-    crateImage = LoadTexture("resources/objects/crate.png");
+    Texture2D crateImage = LoadTexture("resources/objects/crate.png");
 
     //load sounds
 

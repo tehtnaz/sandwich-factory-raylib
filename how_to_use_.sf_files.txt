@@ -7,7 +7,7 @@ There are many objects in the game and each have their own type and represeting 
 ! = terminates the file immediately (cannot be done within a string)
 
 Properties
-    ~ = property   = ~propertyname=data;
+    ~ = property   =  ~propertyname=data;
 
     Property names
     img       - string     (level Image)
@@ -28,7 +28,7 @@ Structs
                                      int,int,int,string,colour
 		  Notes: The string must be expressed without quotes. 
 		              Any attempts to add a comma in the text must be preceeded by a backslash ( \, ) This will display only the comma.
-    Note: Spaces are strongly disencouraged in structs since this breaks anything involving bool because of my lazy coding. Please don't add spaces inside a struct.
+    Note: Spaces are strongly disencouraged in structs since this breaks anything involving bool because of my lazy coding. Please don't add spaces inside a struct unless you're entering a string
 
 Types
     @ = vector 2 (int)   = @(x,y)
